@@ -65,7 +65,7 @@ esp_err_t MCP342X::getValues(int32_t *channel1, int32_t *channel2, int32_t *chan
 			err |= readBytes(&configuration, buffer, 2);
 			_i("%d: %2x %2x %2x", err, buffer[0], buffer[1], configuration);
 		} while (configuration & MCP342X_RDY);
-		*channel[i] = ((buffer[0] & 0b10000000) ? 0xffff0000 : 0x00000000) | (buffer[0] << 8) | buffer[1];
+		*channel2 = ((buffer[0] & 0b10000000) ? 0xffff0000 : 0x00000000) | (buffer[0] << 8) | buffer[1];
 	}
 
 	return err;
