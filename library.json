@@ -1,0 +1,22 @@
+{
+	"name": "ADC_2ch_MC3426",
+	"keywords": "esp32, MCP3426, espidf",
+	"description": "ADC MCP3426",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/ixsiid/ADC_2ch_MC3426.git"
+	},
+	"authors": [
+		{
+			"name": "KIM Talchi",
+			"email": "ixsiid@halzion.net",
+			"url": "https://halzion.net",
+			"maintainer": true
+		}
+	],
+	"version": "1.0.0",
+	"frameworks": [
+		"espidf"
+	],
+	"platforms": "espressif32"
+}
