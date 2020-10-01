@@ -57,11 +57,11 @@ esp_err_t MCP342X::getValues(int32_t *channel1, int32_t *channel2, int32_t *chan
 
 	int32_t *channel[4] = {channel1, channel2, channel3, channel4};
 	for (int i = 0; i < 4; i++) {
-		// if (err != ESP_OK) break;
+		if (err != ESP_OK) break;
 		if (channel[i] == nullptr) continue;
 		err |= writeByte(0x88 | (i << 5));
 		do {
-			vTaskDelay(300 / portTICK_RATE_MS);
+			vTaskDelay(70 / portTICK_RATE_MS);
 			err |= readBytes(&configuration, buffer, 2);
 			_i("%d: %2x %2x %2x", err, buffer[0], buffer[1], configuration);
 		} while (configuration & MCP342X_RDY);
