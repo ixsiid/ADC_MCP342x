@@ -41,9 +41,9 @@ esp_err_t initI2C(i2c_port_t i2c_port) {
 void app_main() {
 	LCD::ILI9341 *lcd = new LCD::ILI9341();
 
-	err = initI2C(i2c_port_t::I2C_NUM_0);
+	err = initI2C(I2C_NUM_0);
 
-	adc = new MCP342X(i2c_port_t::I2C_NUM_0, 0x68);
+	adc = new MCP342X(I2C_NUM_0, 0x68);
 
 	xTaskCreatePinnedToCore([](void *lcd_p) {
 		LCD::ILI9341 *lcd = (LCD::ILI9341 *)lcd_p;
