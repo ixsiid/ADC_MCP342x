@@ -1,8 +1,13 @@
-#include "mcp3426.hpp"
+#include "mcp342x.hpp"
 
-#define TAG "MCP3426 DRIVER"
+#define TAG "MCP342X DRIVER"
 #define LOG_LOCAL_LEVEL 3
 #include "log.h"
+
+const uint8_t MCP342X::dataRateFlag[]	 = {0x80, 0x40, 0x00};
+const uint16_t MCP342X::dataRateMask[]	 = {0x0000, 0x3000, 0x0800};
+const uint32_t MCP342X::dataRateCoding[] = {0x00000000, 0xffffc000, 0xfffff000};
+const TickType_t MCP342X::dataRateTick[] = {1000 / 15 / portTICK_RATE_MS, 1000 / 60 / portTICK_RATE_MS, 1000 / 240 / portTICK_RATE_MS};
 
 /******************************************
  * Specific address constructor.
@@ -10,9 +15,10 @@
  * @see MCP342X_DEFAULT_ADDRESS
  * @see MCP342X_A0GND_A1GND, etc.
  */
-MCP342X::MCP342X(i2c_port_t port, uint8_t address) {
-	this->address = address;
-	this->port    = port;
+MCP342X::MCP342X(i2c_port_t port, uint8_t address, MCP342X_DATA_RATE dataRate) {
+	this->address	= address;
+	this->port	= port;
+	this->dataRate = dataRate;
 }
 
 esp_err_t MCP342X::writeByte(uint8_t data) {
@@ -59,36 +65,19 @@ esp_err_t MCP342X::getValues(int32_t *channel1, int32_t *channel2, int32_t *chan
 	for (int i = 0; i < 4; i++) {
 		if (err != ESP_OK) break;
 		if (channel[i] == nullptr) continue;
-		uint8_t a = 0x88 | (i << 5); // 16bit 15sps
-		// uint8_t a = 0x84 | (i << 5); // 14bit 60sps
-		// uint8_t a = 0x80 | (i << 5); // 12bit 240sps
+		uint8_t a = 0x80 | dataRateFlag[dataRate] | (i << 5);
 		err |= writeByte(a);
 		do {
 			vTaskDelay(70 / portTICK_RATE_MS);
 			err |= readBytes(&configuration, buffer, 2);
 			_v("%d(%2x): %2x %2x %2x", err, a, buffer[0], buffer[1], configuration);
 		} while (configuration & MCP342X_RDY);
-		// 16bit
+
 		*channel[i] = buffer[0];
 		*channel[i] <<= 8;
+		if (*channel[i] & dataRateMask[dataRate]) *channel[i] |= dataRateCoding[dataRate];
 		*channel[i] |= buffer[1];
 
-		// 14bit
-		/*
-		*channel[i] = buffer[0];
-		*channel[i] <<= 8;
-		if (*channel[i] & 0x3000) *channel[i] |= 0xffffc000;
-		*channel[i] |= buffer[1];
-		*/
-
-		// 12bit
-		/*
-		*channel[i] = buffer[0];
-		*channel[i] <<= 8;
-		if (*channel[i] & 0x0800) *channel[i] |= 0xfffff000;
-		*channel[i] |= buffer[1];
-		*/
-		
 		_v("ReadValue: %d, %x", *(channel[i]), *(channel[i]));
 	}
 

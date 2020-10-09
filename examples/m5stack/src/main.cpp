@@ -4,7 +4,7 @@
 #include <freertos/task.h>
 
 #include <ili9341.hpp>
-#include <mcp3426.hpp>
+#include <mcp342x.hpp>
 
 #define TAG "MCP3426"
 #include "log.h"

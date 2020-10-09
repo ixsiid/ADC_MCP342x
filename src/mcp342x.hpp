@@ -1,8 +1,7 @@
 #pragma once
 
-#include <sys/types.h>
-
 #include <driver/i2c.h>
+#include <sys/types.h>
 
 // Conversion mode definitions
 #define MCP342X_MODE_ONESHOT 0x00
@@ -39,16 +38,27 @@
 // /RDY bit definition
 #define MCP342X_RDY 0x80
 
+enum MCP342X_DATA_RATE { Bit16,
+					Bit14,
+					Bit12 };
+
 class MCP342X {
     public:
-	MCP342X(i2c_port_t port, uint8_t address);
-	esp_err_t getValues(int32_t * ch1 = nullptr, int32_t * ch2 = nullptr, int32_t * ch3 = nullptr, int32_t * ch4 = nullptr);
+	MCP342X(i2c_port_t port, uint8_t address, MCP342X_DATA_RATE = Bit16);
+	esp_err_t getValues(int32_t* ch1 = nullptr, int32_t* ch2 = nullptr, int32_t* ch3 = nullptr, int32_t* ch4 = nullptr);
+
+	static const uint8_t dataRateFlag[];
+	static const uint16_t dataRateMask[];
+	static const uint32_t dataRateCoding[];
+	static const TickType_t dataRateTick[];
 
     private:
 	uint8_t address;
 	uint8_t config;
 	i2c_port_t port;
 
+	MCP342X_DATA_RATE dataRate;
+
 	esp_err_t writeByte(uint8_t data);
-	esp_err_t readBytes(uint8_t * configuration, uint8_t * buffer, size_t count);
+	esp_err_t readBytes(uint8_t* configuration, uint8_t* buffer, size_t count);
 };
